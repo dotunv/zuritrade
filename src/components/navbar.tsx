@@ -2,83 +2,159 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { ProfileControls } from "./profile/profileControls";
+import { useAuth } from "../lib/AuthContext";
 
-const NAV_ITEMS = ["Market", "Create", "Learn"];
+const NAV_LINKS = [
+    { label: "Dashboard", href: "/dashboard", color: "#10b981" },
+    { label: "Markets", href: "#", color: "#a78bfa" },
+    { label: "Agents", href: "/agents/create", color: "#f59e0b" },
+    { label: "Docs", href: "/learn", color: "#38bdf8" },
+];
 
 export default function Navbar() {
     const [open, setOpen] = useState(false);
+    const { isConnected, isConnecting, user, connect, disconnect } = useAuth();
 
     return (
-        <>
-            <nav className="bg-white border-b border-[rgba(15,23,42,0.04)] sticky top-0 z-40" aria-label="Main navigation">
-                <div className="max-w-[1200px] mx-auto px-4 h-16 flex items-center justify-between relative">
-                    <Link href="/" className="inline-flex items-center gap-2 no-underline text-[#0f172a] font-semibold text-lg" aria-label="PlayZone home">
-                        <svg
-                            width="28"
-                            height="28"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                            aria-hidden="true"
+        <nav className="sticky top-0 z-40 flex justify-center py-3 px-4" aria-label="Main navigation">
+            {/* Floating modular navbar */}
+            <div className="inline-flex items-stretch bg-[#0a0a0a] border border-[#1a1a1a] rounded-lg overflow-hidden max-w-full">
+                {/* Logo segment */}
+                <Link
+                    href="/"
+                    className="inline-flex items-center gap-2 px-4 py-2.5 border-r border-[#1a1a1a] no-underline text-white hover:bg-[#111] transition-colors"
+                    aria-label="ZuriTrade home"
+                >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+                    </svg>
+                </Link>
+
+                {/* Desktop nav links */}
+                <div className="hidden md:flex items-stretch">
+                    {NAV_LINKS.map((link) => (
+                        <Link
+                            key={link.label}
+                            href={link.href}
+                            className="inline-flex items-center gap-2 px-4 py-2.5 border-r border-[#1a1a1a] no-underline text-[#888] hover:text-white hover:bg-[#111] transition-colors group"
                         >
-                            <rect x="2" y="4" width="20" height="16" rx="3" stroke="#0f172a" strokeWidth="1.5" />
-                            <path d="M8 8L16 12L8 16V8Z" fill="#0f172a" />
-                        </svg>
-                        <span className="leading-none">PlayZone</span>
-                    </Link>
+                            <span
+                                className="w-2 h-2 rounded-sm flex-shrink-0 opacity-70 group-hover:opacity-100 transition-opacity"
+                                style={{ backgroundColor: link.color }}
+                                aria-hidden="true"
+                            />
+                            <span className="text-[11px] font-mono font-medium tracking-[0.12em] uppercase whitespace-nowrap">
+                                {link.label}
+                            </span>
+                        </Link>
+                    ))}
+                </div>
 
-                    <ul className="hidden md:flex gap-6 absolute left-1/2 transform -translate-x-1/2">
-                        {NAV_ITEMS.map((it) => (
-                            <li key={it}>
-                                <Link href={`/${it.toLowerCase()}`} className="text-[#64748b] no-underline py-2 px-1.5 rounded-md font-medium hover:text-[#0f172a] hover:bg-[rgba(15,23,42,0.04)]">
-                                    {it}
-                                </Link>
-                            </li>
-                        ))}
-                    </ul>
-
-                    <div className="flex items-center gap-3">
-                        <div className="hidden md:block">
-                            <ProfileControls variant="desktop" />
-                        </div>
-
+                {/* Right-side CTA / Auth */}
+                <div className="hidden md:flex items-stretch">
+                    {isConnected ? (
+                        <>
+                            <Link
+                                href="/dashboard"
+                                className="inline-flex items-center gap-2 px-4 py-2.5 border-r border-[#1a1a1a] no-underline text-[#888] hover:text-white hover:bg-[#111] transition-colors"
+                            >
+                                <span className="w-2 h-2 rounded-full bg-success flex-shrink-0 animate-pulse" aria-hidden="true" />
+                                <span className="text-[11px] font-mono tracking-[0.12em] uppercase">
+                                    {user?.displayName}
+                                </span>
+                            </Link>
+                            <button
+                                onClick={disconnect}
+                                className="inline-flex items-center gap-2 px-4 py-2.5 bg-transparent border-0 text-[#555] hover:text-danger hover:bg-danger/5 transition-colors cursor-pointer"
+                            >
+                                <span className="text-[11px] font-mono tracking-[0.12em] uppercase">
+                                    Disconnect
+                                </span>
+                            </button>
+                        </>
+                    ) : (
                         <button
-                            className="md:hidden inline-flex bg-transparent border-0 p-1.5 rounded-md cursor-pointer"
-                            aria-label={open ? "Close menu" : "Open menu"}
-                            onClick={() => setOpen((s) => !s)}
+                            onClick={connect}
+                            disabled={isConnecting}
+                            className="inline-flex items-center gap-2 px-5 py-2.5 bg-accent border-0 text-[#0a0a0a] cursor-pointer hover:bg-accent-hover transition-colors disabled:opacity-50"
                         >
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                {open ? (
-                                    <path d="M6 6L18 18M6 18L18 6" stroke="#0f172a" strokeWidth="2" strokeLinecap="round" />
-                                ) : (
-                                    <path d="M3 7H21M3 12H21M3 17H21" stroke="#0f172a" strokeWidth="2" strokeLinecap="round" />
-                                )}
-                            </svg>
+                            {isConnecting ? (
+                                <span className="text-[11px] font-mono font-bold tracking-[0.12em] uppercase">
+                                    Connecting...
+                                </span>
+                            ) : (
+                                <>
+                                    <span className="text-[11px] font-mono font-bold tracking-[0.12em] uppercase">
+                                        Connect Wallet
+                                    </span>
+                                    <span className="text-sm font-mono" aria-hidden="true">›</span>
+                                </>
+                            )}
                         </button>
-                    </div>
+                    )}
                 </div>
 
-                {/* Mobile dropdown */}
-                <div className={`${open ? "block" : "hidden"} w-full bg-white border-t border-[rgba(15,23,42,0.04)] md:hidden`}>
-                    <ul className="list-none m-0 p-3 px-4 flex flex-col gap-2">
-                        {NAV_ITEMS.map((it) => (
-                            <li key={it}>
-                                <Link
-                                    href={`/${it.toLowerCase()}`}
-                                    onClick={() => setOpen(false)}
-                                    className="text-[#0f172a] p-2.5 rounded-lg block bg-transparent hover:bg-[rgba(15,23,42,0.04)]"
+                {/* Mobile menu button */}
+                <button
+                    className="md:hidden inline-flex items-center justify-center w-11 bg-transparent border-0 border-l border-[#1a1a1a] cursor-pointer"
+                    aria-label={open ? "Close menu" : "Open menu"}
+                    onClick={() => setOpen((s) => !s)}
+                >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        {open ? (
+                            <path d="M6 6L18 18M6 18L18 6" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" />
+                        ) : (
+                            <path d="M3 7H21M3 12H21M3 17H21" stroke="#888" strokeWidth="2" strokeLinecap="round" />
+                        )}
+                    </svg>
+                </button>
+            </div>
+
+            {/* Mobile dropdown */}
+            {open && (
+                <div className="fixed top-[52px] left-0 right-0 z-50 md:hidden">
+                    <div className="mx-4 bg-[#0a0a0a] border border-[#1a1a1a] rounded-lg overflow-hidden mt-1">
+                        <ul className="list-none m-0 p-0">
+                            {NAV_LINKS.map((link) => (
+                                <li key={link.label} className="border-b border-[#1a1a1a] last:border-0">
+                                    <Link
+                                        href={link.href}
+                                        onClick={() => setOpen(false)}
+                                        className="flex items-center gap-3 px-4 py-3 text-white no-underline hover:bg-[#111] transition-colors"
+                                    >
+                                        <span
+                                            className="w-2 h-2 rounded-sm flex-shrink-0"
+                                            style={{ backgroundColor: link.color }}
+                                            aria-hidden="true"
+                                        />
+                                        <span className="text-[11px] font-mono font-medium tracking-[0.12em] uppercase">
+                                            {link.label}
+                                        </span>
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+                        <div className="p-3 border-t border-[#1a1a1a]">
+                            {isConnected ? (
+                                <button
+                                    onClick={() => { disconnect(); setOpen(false); }}
+                                    className="w-full py-2.5 rounded bg-[#111] text-[#888] text-[11px] font-mono tracking-[0.12em] uppercase cursor-pointer border border-[#1a1a1a]"
                                 >
-                                    {it}
-                                </Link>
-                            </li>
-                        ))}
-                    </ul>
-                    <div className="p-3 px-4 pb-4">
-                        <ProfileControls variant="mobile" />
+                                    Disconnect ({user?.walletAddress})
+                                </button>
+                            ) : (
+                                <button
+                                    onClick={() => { connect(); setOpen(false); }}
+                                    disabled={isConnecting}
+                                    className="w-full py-2.5 rounded bg-accent text-[#0a0a0a] text-[11px] font-mono font-bold tracking-[0.12em] uppercase cursor-pointer border-0"
+                                >
+                                    {isConnecting ? "Connecting..." : "Connect Wallet  ›"}
+                                </button>
+                            )}
+                        </div>
                     </div>
                 </div>
-            </nav>
-        </>
+            )}
+        </nav>
     );
 }

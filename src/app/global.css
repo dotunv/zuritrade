@@ -1,1 +1,123 @@
 @import "tailwindcss";
+
+@theme {
+  --font-sans: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  --color-primary: #ffffff;
+  --color-primary-hover: #cccccc;
+  --color-accent: #f59e0b;
+  --color-accent-hover: #fbbf24;
+  --color-surface: #111111;
+  --color-surface-hover: #1a1a1a;
+  --color-border: rgba(255, 255, 255, 0.06);
+  --color-muted: #888888;
+  --color-success: #10b981;
+  --color-danger: #ef4444;
+}
+
+body {
+  @apply bg-[#0a0a0a] text-white antialiased;
+}
+
+/* Gradient accent text */
+.text-gradient-accent {
+  background: linear-gradient(135deg, #f59e0b, #fbbf24);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Card hover glow */
+.card-glow {
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.card-glow:hover {
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.06), 0 0 40px rgba(245, 158, 11, 0.03);
+  border-color: rgba(245, 158, 11, 0.12);
+}
+
+/* Hero gradient */
+.gradient-hero {
+  background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(245, 158, 11, 0.1), transparent);
+}
+
+/* Step badge */
+.step-number {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  background: rgba(245, 158, 11, 0.08);
+  padding: 0.25rem 0.5rem;
+  display: inline-block;
+}
+
+/* Status badge */
+.status-active {
+  color: #10b981;
+}
+
+.status-paused {
+  color: #f59e0b;
+}
+
+.status-stopped {
+  color: #ef4444;
+}
+
+.status-deploying {
+  color: #3b82f6;
+}
+
+/* P&L colors */
+.pnl-positive {
+  color: #10b981;
+}
+
+.pnl-negative {
+  color: #ef4444;
+}
+
+/* Input dark styling */
+input,
+textarea,
+select {
+  color-scheme: dark;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0a0a0a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 3px;
+}
+
+/* Custom range slider for risk level */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  background: #333;
+  border-radius: 2px;
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #f59e0b;
+  cursor: pointer;
+}
