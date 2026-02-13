@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useAuth } from "../lib/AuthContext";
+import { useMarkets } from "../lib/hooks";
 import { mockMarkets } from "../lib/mockData";
 
 const STEPS = [
@@ -42,6 +43,8 @@ const FEATURES = [
 
 export default function LandingPage() {
   const { connect, isConnecting, isConnected } = useAuth();
+  const { data: marketsData } = useMarkets();
+  const markets = (marketsData?.markets?.length ? marketsData.markets : mockMarkets) as typeof mockMarkets;
 
   return (
     <main>
@@ -147,11 +150,11 @@ export default function LandingPage() {
             <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tight">
               Live Markets
             </h2>
-            <span className="hidden sm:inline text-muted text-sm font-mono">{mockMarkets.length} active</span>
+            <span className="hidden sm:inline text-muted text-sm font-mono">{markets.length} active</span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {mockMarkets.slice(0, 4).map((market) => (
+            {markets.slice(0, 4).map((market) => (
               <div
                 key={market.id}
                 className="border border-border rounded-xl p-5 bg-surface card-glow"

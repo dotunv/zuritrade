@@ -2,11 +2,24 @@
 
 import { use } from "react";
 import Link from "next/link";
+import { useMarket } from "../../../lib/hooks";
 import { mockMarkets } from "../../../lib/mockData";
 
 export default function MarketDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
-    const market = mockMarkets.find((m) => m.id === id);
+    const { data: marketFromApi, isPending } = useMarket(id);
+    const marketFromMock = mockMarkets.find((m) => m.id === id);
+    const market = marketFromApi ?? marketFromMock ?? null;
+
+    if (isPending && !market) {
+        return (
+            <main className="min-h-[70vh] flex items-center justify-center">
+                <div className="text-center">
+                    <span className="text-muted">Loading...</span>
+                </div>
+            </main>
+        );
+    }
 
     if (!market) {
         return (

@@ -1,0 +1,109 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── User ───
+model User {
+  id            String   @id @default(cuid())
+  email         String?
+  walletAddress String   @unique
+  displayName   String
+  avatarUrl     String?
+  createdAt     DateTime @default(now())
+
+  agents Agent[]
+}
+
+// ─── Political Market ───
+model PoliticalMarket {
+  id           String   @id @default(cuid())
+  title        String
+  description  String
+  category     String   // elections | policy | economics | diplomacy
+  region       String   // nigeria | south-africa | kenya | ghana | ethiopia | pan-african
+  probability  Float
+  volume       Int
+  totalTraders Int
+  status       String   // active | resolved | upcoming
+  resolution   String?
+  endDate      DateTime
+  createdAt    DateTime @default(now())
+
+  trades    Trade[]
+  positions Position[]
+}
+
+// ─── Agent ───
+model Agent {
+  id               String   @id @default(cuid())
+  userId           String
+  name             String
+  walletAddress    String
+  strategyType     String   // momentum | contrarian | balanced
+  riskLevel        String   // conservative | moderate | aggressive
+  marketFocus      Json     // { regions: string[], categories: string[] }
+  maxTradeSize     Float
+  dailyLossLimit   Float
+  positionLimit    Int
+  capitalAllocated Float
+  capitalUsed      Float    @default(0)
+  status          String   @default("deploying") // active | paused | deploying | stopped
+  pnl             Float    @default(0)
+  pnlPercent      Float    @default(0)
+  winRate         Float    @default(0)
+  totalTrades      Int      @default(0)
+  openPositions    Int      @default(0)
+  lastTradeAt     DateTime?
+  deployedAt      DateTime  @default(now())
+  createdAt       DateTime  @default(now())
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  trades   Trade[]
+  positions Position[]
+}
+
+// ─── Trade ───
+model Trade {
+  id          String   @id @default(cuid())
+  agentId     String
+  marketId    String
+  direction   String   // buy | sell
+  amount      Float
+  price       Float
+  txHash      String?
+  status      String   // executed | pending | failed
+  pnl         Float?
+  gasUsed     String?
+  blockNumber Int?
+  timestamp   DateTime @default(now())
+
+  agent  Agent          @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  market PoliticalMarket @relation(fields: [marketId], references: [id])
+}
+
+// ─── Position ───
+model Position {
+  id                 String    @id @default(cuid())
+  agentId            String
+  marketId           String
+  direction          String    // buy | sell
+  entryPrice         Float
+  currentPrice       Float
+  amount             Float
+  unrealizedPnl      Float
+  unrealizedPnlPercent Float
+  status             String    // open | closed
+  openedAt           DateTime  @default(now())
+  closedAt           DateTime?
+
+  agent  Agent          @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  market PoliticalMarket @relation(fields: [marketId], references: [id])
+}

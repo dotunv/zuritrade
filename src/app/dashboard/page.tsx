@@ -3,11 +3,11 @@
 import Link from "next/link";
 import { useAuth } from "../../lib/AuthContext";
 import {
-    mockAgents,
-    mockTrades,
-    mockPerformanceData,
-    getPortfolioStats,
-} from "../../lib/mockData";
+    useAgents,
+    usePortfolioStats,
+    usePortfolioTrades,
+} from "../../lib/hooks";
+import { mockPerformanceData } from "../../lib/mockData";
 import {
     LineChart,
     Line,
@@ -19,8 +19,22 @@ import {
 } from "recharts";
 
 export default function DashboardPage() {
-    const { isConnected, connect, isConnecting } = useAuth();
-    const stats = getPortfolioStats();
+    const { isConnected, connect, isConnecting, walletAddressFull } = useAuth();
+    const { data: agentsData } = useAgents(walletAddressFull ?? undefined);
+    const { data: statsData } = usePortfolioStats(walletAddressFull ?? undefined);
+    const { data: tradesData } = usePortfolioTrades(walletAddressFull ?? undefined);
+
+    const agents = agentsData?.agents ?? [];
+    const stats = statsData ?? {
+        totalCapital: 0,
+        totalPnl: 0,
+        totalPnlPercent: 0,
+        activeAgents: 0,
+        totalAgents: 0,
+        totalTrades: 0,
+        avgWinRate: 0,
+    };
+    const recentTrades = tradesData?.trades?.slice(0, 5) ?? [];
 
     if (!isConnected) {
         return (
@@ -44,8 +58,6 @@ export default function DashboardPage() {
             </main>
         );
     }
-
-    const recentTrades = mockTrades.slice(0, 5);
 
     return (
         <main className="max-w-[1200px] mx-auto px-4 py-8">
@@ -106,7 +118,7 @@ export default function DashboardPage() {
             <div className="mb-8">
                 <h2 className="text-base font-bold text-white mb-4">Your Agents</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {mockAgents.map((agent) => (
+                    {agents.map((agent) => (
                         <Link
                             key={agent.id}
                             href={`/agents/${agent.id}`}

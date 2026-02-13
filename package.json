@@ -2,20 +2,33 @@
   "name": "zuritrade-frontend",
   "private": true,
   "version": "0.1.0",
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:seed": "tsx prisma/seed.ts",
+    "db:push": "prisma db push"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
+    "@prisma/adapter-pg": "^7.4.0",
+    "@prisma/client": "^7.4.0",
     "@rainbow-me/rainbowkit": "^2.2.9",
     "@tailwindcss/postcss": "^4.1.16",
     "@tailwindcss/vite": "^4.1.16",
     "@tanstack/react-query": "^5.55.3",
+    "@web3auth/modal": "^10.14.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "dotenv": "^17.3.1",
     "lucide-react": "^0.553.0",
     "next": "^16.0.1",
+    "pg": "^8.18.0",
     "postcss": "^8.5.6",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
@@ -26,8 +39,11 @@
   },
   "devDependencies": {
     "@types/node": "^20.14.8",
+    "@types/pg": "^8.16.0",
     "@types/react": "^19.1.8",
     "eslint-config-next": "^16.0.1",
+    "prisma": "^7.4.0",
+    "tsx": "^4.21.0",
     "typescript": "5.5.4"
   }
 }

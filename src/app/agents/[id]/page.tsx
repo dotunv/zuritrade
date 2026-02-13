@@ -3,7 +3,12 @@
 import React, { useState, use } from "react";
 import Link from "next/link";
 import { useAuth } from "../../../lib/AuthContext";
-import { getAgentById, getAgentTrades, getAgentPositions, mockPerformanceData } from "../../../lib/mockData";
+import {
+    useAgent,
+    useTrades,
+    usePositions,
+} from "../../../lib/hooks";
+import { mockPerformanceData } from "../../../lib/mockData";
 import {
     LineChart,
     Line,
@@ -19,6 +24,14 @@ export default function AgentDetailPage({ params }: { params: Promise<{ id: stri
     const { isConnected, connect, isConnecting } = useAuth();
     const [tab, setTab] = useState<"positions" | "trades" | "config">("positions");
 
+    const { data: agentData, isPending: agentLoading } = useAgent(id);
+    const { data: tradesData } = useTrades(id);
+    const { data: positionsData } = usePositions(id);
+
+    const agent = agentData ?? null;
+    const trades = tradesData?.trades ?? [];
+    const positions = positionsData?.positions ?? [];
+
     if (!isConnected) {
         return (
             <main className="min-h-[70vh] flex items-center justify-center">
@@ -33,7 +46,16 @@ export default function AgentDetailPage({ params }: { params: Promise<{ id: stri
         );
     }
 
-    const agent = getAgentById(id);
+    if (agentLoading) {
+        return (
+            <main className="min-h-[70vh] flex items-center justify-center">
+                <div className="text-center">
+                    <span className="text-muted">Loading...</span>
+                </div>
+            </main>
+        );
+    }
+
     if (!agent) {
         return (
             <main className="min-h-[70vh] flex items-center justify-center">
@@ -44,9 +66,6 @@ export default function AgentDetailPage({ params }: { params: Promise<{ id: stri
             </main>
         );
     }
-
-    const trades = getAgentTrades(agent.id);
-    const positions = getAgentPositions(agent.id);
 
     return (
         <main className="max-w-[1200px] mx-auto px-4 py-8">

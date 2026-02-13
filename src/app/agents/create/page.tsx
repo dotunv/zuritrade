@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../../lib/AuthContext";
+import { useCreateAgent } from "../../../lib/hooks";
 import type { StrategyType, RiskLevel, MarketRegion, MarketCategory } from "../../../types";
 
 const REGIONS: { value: MarketRegion; label: string }[] = [
@@ -35,10 +36,10 @@ const RISK_LABELS: Record<string, string> = {
 const RISK_VALUES: RiskLevel[] = ["conservative", "moderate", "aggressive"];
 
 export default function CreateAgentPage() {
-    const { isConnected, connect, isConnecting } = useAuth();
+    const { isConnected, connect, isConnecting, walletAddressFull } = useAuth();
+    const createAgent = useCreateAgent(walletAddressFull ?? undefined);
     const router = useRouter();
     const [step, setStep] = useState(0);
-    const [deploying, setDeploying] = useState(false);
 
     // Form state
     const [name, setName] = useState("");
@@ -77,9 +78,22 @@ export default function CreateAgentPage() {
     };
 
     const handleDeploy = async () => {
-        setDeploying(true);
-        await new Promise((r) => setTimeout(r, 2500));
-        router.push("/dashboard");
+        try {
+            await createAgent.mutateAsync({
+                name,
+                strategyType: strategy,
+                riskLevel: RISK_VALUES[riskIdx],
+                regions: selectedRegions,
+                categories: selectedCategories,
+                maxTradeSize: maxTrade,
+                dailyLossLimit: dailyLoss,
+                positionLimit: posLimit,
+                capitalAllocated: capital,
+            });
+            router.push("/dashboard");
+        } catch (err) {
+            console.error("Failed to create agent:", err);
+        }
     };
 
     const STEPS_CONFIG = ["Profile", "Markets", "Strategy", "Limits", "Review"];
@@ -302,10 +316,10 @@ export default function CreateAgentPage() {
                     ) : (
                         <button
                             onClick={handleDeploy}
-                            disabled={deploying}
+                            disabled={createAgent.isPending}
                             className="inline-flex items-center gap-2 bg-accent text-[#0a0a0a] px-6 py-2.5 rounded-lg font-bold text-sm hover:bg-accent-hover transition-colors disabled:opacity-50 cursor-pointer border-0"
                         >
-                            {deploying ? (
+                            {createAgent.isPending ? (
                                 <>
                                     <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" className="opacity-25" /><path d="M4 12a8 8 0 018-8" stroke="currentColor" strokeWidth="3" strokeLinecap="round" className="opacity-75" /></svg>
                                     Deploying Agent...
