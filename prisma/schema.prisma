@@ -45,6 +45,7 @@ model PoliticalMarket {
 model Agent {
   id               String   @id @default(cuid())
   userId           String
+  onChainAgentId   BigInt?  // ERC-8004 agentId from IdentityRegistry
   name             String
   walletAddress    String
   strategyType     String   // momentum | contrarian | balanced

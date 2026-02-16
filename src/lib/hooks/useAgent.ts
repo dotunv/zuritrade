@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { getAgent } from "../api";
-import type { Agent } from "../../types";
+import type { Agent, MarketRegion, MarketCategory } from "../../types";
 
 function mapAgent(a: Record<string, unknown>): Agent {
     const mf = (a.marketFocus as { regions?: string[]; categories?: string[] }) ?? {};
@@ -14,8 +14,8 @@ function mapAgent(a: Record<string, unknown>): Agent {
         strategyType: a.strategyType as Agent["strategyType"],
         riskLevel: a.riskLevel as Agent["riskLevel"],
         marketFocus: {
-            regions: mf.regions ?? [],
-            categories: mf.categories ?? [],
+            regions: (mf.regions ?? []) as MarketRegion[],
+            categories: (mf.categories ?? []) as MarketCategory[],
         },
         maxTradeSize: a.maxTradeSize as number,
         dailyLossLimit: a.dailyLossLimit as number,

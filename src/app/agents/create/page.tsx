@@ -3,8 +3,12 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../../lib/AuthContext";
-import { useCreateAgent } from "../../../lib/hooks";
+import { useCreateAgent, useRegisterAgent } from "../../../lib/hooks";
+import { useChainId, useSwitchChain } from "wagmi";
 import type { StrategyType, RiskLevel, MarketRegion, MarketCategory } from "../../../types";
+
+const BASE_CHAIN_ID = 8453;
+const BASE_SEPOLIA_CHAIN_ID = 84532;
 
 const REGIONS: { value: MarketRegion; label: string }[] = [
     { value: "nigeria", label: "🇳🇬 Nigeria" },
@@ -37,8 +41,12 @@ const RISK_VALUES: RiskLevel[] = ["conservative", "moderate", "aggressive"];
 
 export default function CreateAgentPage() {
     const { isConnected, connect, isConnecting, walletAddressFull } = useAuth();
+    const chainId = useChainId();
     const createAgent = useCreateAgent(walletAddressFull ?? undefined);
+    const { register } = useRegisterAgent();
+    const { switchChainAsync } = useSwitchChain();
     const router = useRouter();
+    const isCorrectChain = chainId === BASE_CHAIN_ID || chainId === BASE_SEPOLIA_CHAIN_ID;
     const [step, setStep] = useState(0);
 
     // Form state
@@ -79,6 +87,10 @@ export default function CreateAgentPage() {
 
     const handleDeploy = async () => {
         try {
+            let onChainAgentId: bigint | undefined;
+            if (isCorrectChain) {
+                onChainAgentId = await register();
+            }
             await createAgent.mutateAsync({
                 name,
                 strategyType: strategy,
@@ -89,6 +101,7 @@ export default function CreateAgentPage() {
                 dailyLossLimit: dailyLoss,
                 positionLimit: posLimit,
                 capitalAllocated: capital,
+                onChainAgentId,
             });
             router.push("/dashboard");
         } catch (err) {
@@ -283,9 +296,23 @@ export default function CreateAgentPage() {
                             ))}
                         </div>
 
+                        {!isCorrectChain && (
+                            <div className="mt-6 p-4 rounded-lg bg-amber-500/10 border border-amber-500/30">
+                                <p className="text-xs text-amber-400 font-mono mb-2">
+                                    ⚠ Switch to Base (or Base Sepolia) to register your agent on-chain via ERC-8004.
+                                </p>
+                                <button
+                                    type="button"
+                                    onClick={() => switchChainAsync?.({ chainId: process.env.NEXT_PUBLIC_ENABLE_TESTNETS === "true" ? BASE_SEPOLIA_CHAIN_ID : BASE_CHAIN_ID })}
+                                    className="text-xs font-bold text-amber-400 hover:text-amber-300 underline"
+                                >
+                                    Switch to Base
+                                </button>
+                            </div>
+                        )}
                         <div className="mt-6 p-4 rounded-lg bg-accent/5 border border-accent/20">
                             <p className="text-xs text-accent font-mono">
-                                ⚡ Deploying will create an ERC-8004 smart wallet on Base and allocate ${capital.toLocaleString()} USDC to the agent.
+                                ⚡ Deploying will {isCorrectChain ? "register your agent on-chain (ERC-8004) and " : ""}allocate ${capital.toLocaleString()} USDC to the agent.
                             </p>
                         </div>
                     </div>

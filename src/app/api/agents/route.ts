@@ -15,6 +15,7 @@ export async function POST(request: NextRequest) {
             positionLimit,
             capitalAllocated,
             walletAddress,
+            onChainAgentId,
         } = body;
 
         if (
@@ -46,6 +47,7 @@ export async function POST(request: NextRequest) {
                 userId: user.id,
                 name,
                 walletAddress,
+                onChainAgentId: onChainAgentId != null ? BigInt(onChainAgentId) : null,
                 strategyType,
                 riskLevel,
                 marketFocus: { regions, categories },
@@ -92,6 +94,7 @@ export async function GET(request: NextRequest) {
 
         const agentsWithComputed = agents.map((a) => ({
             ...a,
+            onChainAgentId: a.onChainAgentId != null ? String(a.onChainAgentId) : null,
             marketFocus: a.marketFocus as { regions: string[]; categories: string[] },
         }));
 

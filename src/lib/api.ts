@@ -34,15 +34,22 @@ export interface CreateAgentBody {
     dailyLossLimit: number;
     positionLimit: number;
     capitalAllocated: number;
+    /** ERC-8004 agentId from IdentityRegistry.register() */
+    onChainAgentId?: bigint | string;
 }
 
 export async function createAgent(
     body: CreateAgentBody,
     walletAddress: string
 ): Promise<{ id: string }> {
+    const payload = {
+        ...body,
+        walletAddress,
+        onChainAgentId: body.onChainAgentId != null ? String(body.onChainAgentId) : undefined,
+    };
     return fetchApi("/api/agents", {
         method: "POST",
-        body: JSON.stringify({ ...body, walletAddress }),
+        body: JSON.stringify(payload),
     });
 }
 

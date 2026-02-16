@@ -73,7 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 const fullAddress = getAddress(address);
                 const { user: u } = buildUserFromWeb3Auth(
                     fullAddress,
-                    userInfo ?? undefined
+                    userInfo ?? null
                 );
                 setUser(u);
                 setWalletAddressFull(fullAddress);
@@ -94,11 +94,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             return;
         }
 
+        const currentProvider = provider;
         let cancelled = false;
 
         async function loadUser() {
             try {
-                const accounts = (await provider.request({
+                const accounts = (await currentProvider.request({
                     method: "eth_accounts",
                 })) as string[] | undefined;
                 const address = accounts?.[0];
@@ -108,7 +109,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 const fullAddress = getAddress(address);
                 const { user: u } = buildUserFromWeb3Auth(
                     fullAddress,
-                    userInfo ?? undefined
+                    userInfo ?? null
                 );
                 setUser(u);
                 setWalletAddressFull(fullAddress);

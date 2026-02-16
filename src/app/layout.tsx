@@ -1,14 +1,9 @@
 import './global.css';
 import { ReactNode } from 'react';
-import dynamic from 'next/dynamic';
+import { Providers } from './providers';
 import Navbar from '../components/navbar';
 import Footer from '../components/footer';
 import { Space_Grotesk, Inter } from 'next/font/google';
-
-const Providers = dynamic(
-  () => import('./providers').then((m) => m.Providers),
-  { ssr: false, loading: () => <div className="min-h-screen bg-[#0a0a0a]" /> }
-);
 
 const spaceGrotesk = Space_Grotesk({ subsets: ['latin'], variable: '--font-heading' });
 const inter = Inter({ subsets: ['latin'], variable: '--font-body' });

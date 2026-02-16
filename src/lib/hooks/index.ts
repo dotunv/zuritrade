@@ -7,3 +7,4 @@ export { useMarket } from "./useMarket";
 export { usePortfolioStats } from "./usePortfolioStats";
 export { usePortfolioTrades } from "./usePortfolioTrades";
 export { useCreateAgent } from "./useCreateAgent";
+export { useRegisterAgent } from "./useRegisterAgent";

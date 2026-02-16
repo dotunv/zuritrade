@@ -1,8 +1,11 @@
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../../generated/prisma";
 
-const connectionString = process.env.DATABASE_URL;
+let connectionString = process.env.DATABASE_URL;
 if (!connectionString) throw new Error("DATABASE_URL is required");
+
+// Some pg clients have issues with channel_binding=require; strip it for compatibility
+connectionString = connectionString.replace(/[?&]channel_binding=[^&]*/g, "").replace(/\?&/, "?");
 
 const adapter = new PrismaPg({ connectionString });
 

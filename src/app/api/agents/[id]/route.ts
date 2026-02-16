@@ -17,6 +17,7 @@ export async function GET(
         return NextResponse.json({
             agent: {
                 ...agent,
+                onChainAgentId: agent.onChainAgentId != null ? String(agent.onChainAgentId) : null,
                 marketFocus: agent.marketFocus as {
                     regions: string[];
                     categories: string[];
